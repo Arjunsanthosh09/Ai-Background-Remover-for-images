@@ -3,3 +3,6 @@ flask-cors==5.0.1
 rembg==2.0.67
 onnxruntime==1.22.1
 gunicorn==21.2.0
+python-dotenv
+
+
