@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BackgroundPro - AI Background Remover</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            margin: 0;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .upload-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .upload-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15);
+        }
+
+        .upload-area {
+            border: 3px dashed #e0e4e7;
+            border-radius: 15px;
+            padding: 4rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f2ff 0%, #e8ecff 100%);
+        }
+
+        .upload-area:hover::before {
+            left: 100%;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 2rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .process-button {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+            display: none;
+        }
+
+        .process-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            background: rgba(17, 153, 142, 0.1);
+            border: 1px solid rgba(17, 153, 142, 0.3);
+            color: #0d7377;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .selected-file {
+            background: rgba(17, 153, 142, 0.1);
+            border: 2px solid #11998e;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .selected-file-text {
+            color: #0d7377;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .upload-card {
+                padding: 2rem 1rem;
+            }
+
+            .upload-area {
+                padding: 3rem 1rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">BackgroundPro</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <a href="#" class="cta-button">Get Started</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">AI Background Remover</h1>
+            <p class="hero-subtitle">Remove backgrounds from your images instantly with cutting-edge AI technology</p>
+        </div>
+
+        <div class="upload-card">
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <div class="upload-text">Drag & drop your image here</div>
+                    <div class="upload-subtext">or click to browse (PNG, JPG, JPEG - Max 10MB)</div>
+                    
+                    <input type="file" name="file" accept="image/*" required class="file-input" id="fileInput">
+                    <label for="fileInput" class="file-input-label">
+                        <i class="fas fa-upload"></i> Choose Image
+                    </label>
+                    
+                    <div class="selected-file" id="selectedFile">
+                        <div class="selected-file-text" id="selectedFileName"></div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="process-button" id="processButton">
+                    <i class="fas fa-magic"></i> Remove Background
+                </button>
+                
+                <button type="button" class="process-button" id="uploadAnotherButton" style="display: none; background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <i class="fas fa-plus"></i> Upload Another Image
+                </button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <div style="color: #667eea; font-weight: 500;">Processing your image...</div>
+                </div>
+            </form>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <i class="fas fa-bolt feature-icon"></i>
+                <div class="feature-title">Lightning Fast</div>
+                <div class="feature-text">Process images in seconds with our optimized AI algorithms</div>
+            </div>
+            <div class="feature">
+                <i class="fas fa-eye feature-icon"></i>
+                <div class="feature-title">High Quality</div>
+                <div class="feature-text">Preserve image quality with precise edge detection</div>
+            </div>
+            <div class="feature">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <div class="feature-title">Secure & Private</div>
+                <div class="feature-text">Your images are processed securely and deleted after use</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const selectedFile = document.getElementById('selectedFile');
+        const selectedFileName = document.getElementById('selectedFileName');
+        const processButton = document.getElementById('processButton');
+        const uploadForm = document.getElementById('uploadForm');
+        const loading = document.getElementById('loading');
+        const uploadAnotherButton = document.getElementById('uploadAnotherButton');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#667eea';
+            uploadArea.style.background = 'linear-gradient(135deg, #e8ecff 0%, #d4e0ff 100%)';
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#e0e4e7';
+            uploadArea.style.background = 'linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%)';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelection();
+            }
+            uploadArea.style.borderColor = '#e0e4e7';
+            uploadArea.style.background = 'linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%)';
+        });
+
+        fileInput.addEventListener('change', handleFileSelection);
+
+        function handleFileSelection() {
+            const file = fileInput.files[0];
+            if (file) {
+                selectedFileName.textContent = `Selected: ${file.name}`;
+                selectedFile.style.display = 'block';
+                processButton.style.display = 'inline-block';
+            }
+        }
+
+        uploadForm.addEventListener('submit', (e) => {
+            if (fileInput.files.length > 0) {
+                processButton.style.display = 'none';
+                loading.style.display = 'block';
+                
+                // Create a hidden iframe to handle the download
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                // Set the form target to the iframe
+                uploadForm.target = iframe.name = 'download_frame';
+                
+                // Listen for the iframe load event (download complete)
+                iframe.onload = function() {
+                    // Reset the form after download
+                    setTimeout(() => {
+                        resetForm();
+                        document.body.removeChild(iframe);
+                    }, 1000);
+                };
+            }
+        });
+
+        function resetForm() {
+            // Reset all form elements
+            fileInput.value = '';
+            selectedFile.style.display = 'none';
+            processButton.style.display = 'none';
+            loading.style.display = 'none';
+            uploadForm.target = '';
+            uploadAnotherButton.style.display = 'inline-block';
+            
+            // Reset upload area text
+            document.querySelector('.upload-text').textContent = 'Background removed successfully!';
+            document.querySelector('.upload-subtext').textContent = 'Upload another image to continue';
+            
+            // Show success message
+            showSuccessMessage();
+        }
+
+        // Upload another image functionality
+        uploadAnotherButton.addEventListener('click', () => {
+            // Reset everything to initial state
+            fileInput.value = '';
+            selectedFile.style.display = 'none';
+            processButton.style.display = 'none';
+            loading.style.display = 'none';
+            uploadAnotherButton.style.display = 'none';
+            uploadForm.target = '';
+            
+            // Reset upload area text to original
+            document.querySelector('.upload-text').textContent = 'Drag & drop your image here';
+            document.querySelector('.upload-subtext').textContent = 'or click to browse (PNG, JPG, JPEG - Max 10MB)';
+            
+            // Remove any existing success messages
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            });
+        });
+
+        function showSuccessMessage() {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'alert';
+            successDiv.style.background = 'rgba(17, 153, 142, 0.1)';
+            successDiv.style.border = '1px solid rgba(17, 153, 142, 0.3)';
+            successDiv.style.color = '#0d7377';
+            successDiv.style.padding = '1rem';
+            successDiv.style.borderRadius = '10px';
+            successDiv.style.marginBottom = '2rem';
+            successDiv.style.backdropFilter = 'blur(10px)';
+            successDiv.innerHTML = '<i class="fas fa-check-circle"></i> Background removed successfully! Your download should start automatically.';
+            
+            // Insert before the upload card
+            const uploadCard = document.querySelector('.upload-card');
+            uploadCard.parentNode.insertBefore(successDiv, uploadCard);
+            
+            // Remove success message after 5 seconds
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.parentNode.removeChild(successDiv);
+                }
+            }, 5000);
+        }
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+    </script>
+</body>
+</html>
